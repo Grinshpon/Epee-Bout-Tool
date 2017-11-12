@@ -1,4 +1,4 @@
-l--main lua
+--main lua
 display.setStatusBar(display.HiddenStatusBar)
 local background = display.newImage("greyback.jpg", 0, 0)
 --[[
