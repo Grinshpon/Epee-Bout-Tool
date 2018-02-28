@@ -7,7 +7,7 @@ timeTool.Timer(1,5)
 --]]
 --dofile('timer.lua')
 
-local count = 60 * 5
+local count = 60 * 3
 print(count)
 local screenX, screenY = display.contentWidth, display.contentHeight
 
