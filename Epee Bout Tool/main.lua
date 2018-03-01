@@ -1,4 +1,10 @@
 --main lua
+--[[
+     Epee Bout Tool v1.2.5 
+     By Daniel Grinshpon
+	 Hydrochloric Studio
+--]]
+
 display.setStatusBar(display.HiddenStatusBar)
 local background = display.newImage("greyback.jpg", 0, 0)
 --[[
@@ -46,6 +52,9 @@ local ScoreLeft = display.newText(left,screenX/4,screenY/8,native.systemFont,40)
 local ScoreRight = display.newText(right,screenX*3/4,screenY/8,native.systemFont,40)
 ScoreLeft:setFillColor( 1, 0.27, 0 )
 ScoreRight:setFillColor( 1, 0.27, 0 )
+local priorityPic = display.newImageRect("pauseOver.png", screenX/3, screenY/10)
+priorityPic.y = screenY/8
+priorityPic.isVisible = false
 
 local widget = require( "widget" )
  
@@ -163,9 +172,9 @@ local function handleReset(event)
     	system.vibrate()
 		if isPaused then
         	print( "reset scores" )
-	    	left,right = 0,0
-	    	ScoreLeft.text = (left)
-	    	ScoreRight.text = (right)
+	    	rightPoint(-right)
+			leftPoint(-left)
+			priorityPic.isVisible= false
 	    end
     end
 end
@@ -200,6 +209,27 @@ local function handleSub(event)
 		print( "add second" )
         if isPaused then
         	changeTime(-1)
+        end
+    end
+end
+
+math.randomseed(os.time())
+local function handlePriority(event)
+    if ( "ended" == event.phase ) then
+        system.vibrate()
+		print( "priority" )
+        if isPaused then
+			local pick = math.random(2)
+        	print(pick)
+			if pick == 1 then
+				priorityPic.x = screenX/4
+				ScoreLeft:toFront()
+			else
+				priorityPic.x = screenX*3/4
+				ScoreRight:toFront()
+			end
+			priorityPic.isVisible = true
+			setTime(1)
         end
     end
 end
@@ -288,7 +318,7 @@ local buttonRight = widget.newButton( --POINT RIGHT
         onEvent = handleRight
     }
 )
-local buttonLeft = widget.newButton( --SUBTRACT LEFT
+local buttonSubLeft = widget.newButton( --SUBTRACT LEFT
     {
         width = screenX/4,
         height = screenY/10,
@@ -302,7 +332,7 @@ local buttonLeft = widget.newButton( --SUBTRACT LEFT
         onEvent = minusLeft
     }
 )
-local buttonRight = widget.newButton( --SUBTRACT RIGHT
+local buttonSubRight = widget.newButton( --SUBTRACT RIGHT
     {
         width = screenX/4,
         height = screenY/10,
@@ -329,7 +359,7 @@ local buttonDouble = widget.newButton( --DOUBLE TOUCH
         onEvent = handleDouble,
     }
 )
-local buttonRight = widget.newButton( --RESET SCORE
+local buttonReset = widget.newButton( --RESET SCORE
     {
         width = screenY/15,
         height = screenY/15,
@@ -341,7 +371,7 @@ local buttonRight = widget.newButton( --RESET SCORE
         onEvent = handleReset
     }
 )
-local buttonOne = widget.newButton( --ADD TIME
+local buttonAdd = widget.newButton( --ADD TIME
     {
         width = screenX/5,
         height = screenY/15,
@@ -355,7 +385,7 @@ local buttonOne = widget.newButton( --ADD TIME
         onEvent = handleAdd
     }
 )
-local buttonOne = widget.newButton( --SUBTRACT TIME
+local buttonSub = widget.newButton( --SUBTRACT TIME
     {
         width = screenX/5,
         height = screenY/15,
@@ -367,5 +397,19 @@ local buttonOne = widget.newButton( --SUBTRACT TIME
         labelColor = { default={ 0, 0, 0, 0.8 }, over={ 0, 0, 0, 0.5 } },
         fontSize = 25,
         onEvent = handleSub
+    }
+)
+local buttonPriority = widget.newButton( --PRIORITY
+    {
+        width = screenX*1/3,
+        height = screenY/10,
+        top = -screenY/30,
+		left = screenX/3,
+        defaultFile = "doubleDefault.png",
+        overFile = "pauseOver.png",
+        label = "Priority",
+        labelColor = { default={ 0, 0, 0, 0.8 }, over={ 0, 0, 0, 0.5 } },
+        fontSize = 24,
+        onEvent = handlePriority,
     }
 )
