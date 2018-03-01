@@ -49,100 +49,119 @@ ScoreRight:setFillColor( 1, 0.27, 0 )
 
 local widget = require( "widget" )
  
+--Functions called by events
+local function setTime(minutes)
+	timer.cancel(timer1)
+    count = 60*minutes
+    counter1.text=(convertTime(count))
+    counter1:setFillColor( 1, 0.27, 0 )
+    timer1 = timer.performWithDelay(1000, listener, count)
+    timer.pause(timer1)
+	isPaused = true
+end
+
+local function rightPoint(point)
+	right = right + point
+	ScoreRight.text = (right)
+end
+
+local function leftPoint(point)
+	left = left + point
+	ScoreLeft.text = (left)
+end
+
+local function changeTime(oneSec)
+	count = count + oneSec
+	counter1.text=(convertTime(count))
+	counter1:setFillColor( 1, 0.27, 0 )
+end
+ 
 -- Functions to handle button events
 local function handleFive(event)
     if ( "ended" == event.phase ) then
-        print( "reset five" )
-        timer.cancel(timer1)
-        count = 60*5
-        counter1.text=(convertTime(count))
-        counter1:setFillColor( 1, 0.27, 0 )
-        timer1 = timer.performWithDelay(1000, listener, count)
-        timer.pause(timer1)
-		isPaused = true
+		system.vibrate()
+		if isPaused then
+			print( "reset five" )
+			setTime(5)
+		end
     end
 end
 
 local function handleThree(event)
     if ( "ended" == event.phase ) then
-        print( "reset three" )
-        timer.cancel(timer1)
-        count = 60*3
-        counter1.text=(convertTime(count))
-        counter1:setFillColor( 1, 0.27, 0 )
-        timer1 = timer.performWithDelay(1000, listener, count)
-        timer.pause(timer1)
-		isPaused = true
+        system.vibrate()
+		if isPaused then
+			print( "reset three" )
+			setTime(3)
+		end
     end
 end
 
 local function handleOne(event)
     if ( "ended" == event.phase ) then
-        print( "reset one" )
-        timer.cancel(timer1)
-        count = 60
-        counter1.text=(convertTime(count))
-        counter1:setFillColor( 1, 0.27, 0 )
-        timer1 = timer.performWithDelay(1000, listener, count)
-        timer.pause(timer1)
-		isPaused = true
+        system.vibrate()
+		if isPaused then
+			print( "reset one" )
+			setTime(1)
+		end
     end
 end
 
 local function handleLeft(event)
     if ( "ended" == event.phase ) then
-        if isPaused then
+        system.vibrate()
+		if isPaused then
         	print( "point left" )
-        	left = left + 1
-        	ScoreLeft.text = (left)
+        	leftPoint(1)
         end
     end
 end
 
 local function handleRight(event)
     if ( "ended" == event.phase ) then
-    	if isPaused then
+    	system.vibrate()
+		if isPaused then
         	print( "point right" )
-	        right = right + 1
-	        ScoreRight.text = (right)
+	        rightPoint(1)
 	    end
     end
 end
 
 local function minusLeft(event)
     if ( "ended" == event.phase ) then
-        if isPaused and left ~= 0 then
+        system.vibrate()
+		if isPaused and left ~= 0 then
         	print( "subtract left" )
-        	left = left - 1
-        	ScoreLeft.text = (left)
+        	leftPoint(-1)
         end
     end
 end
 
 local function minusRight(event)
     if ( "ended" == event.phase ) then
-    	if isPaused and right ~= 0 then
-        	print( "subtractt right" )
-	        right = right - 1
-	        ScoreRight.text = (right)
+    	system.vibrate()
+		if isPaused and right ~= 0 then
+        	print( "subtract right" )
+	        rightPoint(-1)
 	    end
     end
 end
 
 local function handleDouble(event)
     if ( "ended" == event.phase ) then
-    	if isPaused then
+    	system.vibrate()
+		if isPaused then
         	print( "double touch" )
-	    	left,right = left+1,right+1
-	    	ScoreLeft.text = (left)
-	    	ScoreRight.text = (right)
+	    	rightPoint(1)
+			leftPoint(1)
 	    end
     end
 end
 
 local function handleReset(event)
     if ( "ended" == event.phase ) then
-    	if isPaused then
+    	system.vibrate()
+		if isPaused then
         	print( "reset scores" )
 	    	left,right = 0,0
 	    	ScoreLeft.text = (left)
@@ -153,7 +172,8 @@ end
 
 local function handlePause(event)
     if ( "ended" == event.phase ) then
-        print( "pause/continue" )
+        system.vibrate()
+		print( "pause/continue" )
         if isPaused then
         	timer.resume(timer1)
         	isPaused = false
@@ -164,10 +184,30 @@ local function handlePause(event)
     end
 end
 
+local function handleAdd(event)
+    if ( "ended" == event.phase ) then
+        system.vibrate()
+		print( "add second" )
+        if isPaused then
+        	changeTime(1)
+        end
+    end
+end
+
+local function handleSub(event)
+    if ( "ended" == event.phase ) then
+        system.vibrate()
+		print( "add second" )
+        if isPaused then
+        	changeTime(-1)
+        end
+    end
+end
+
 local pause = widget.newButton( --PAUSE
     {
         width = screenX,
-        height = screenY/6,
+        height = screenY/3.3,
         top = screenY/2 + screenY/14,
         defaultFile = "pauseDefault.png",
         overFile = "pauseOver.png",
@@ -180,12 +220,13 @@ local pause = widget.newButton( --PAUSE
  
 local buttonFive = widget.newButton( --FIVE MINUTES
     {
-        width = screenX,
+        width = screenX/3,
         height = screenY/10,
-        top = screenY*3/4,
+        top = screenY*3/4 + screenY/5.5,
+		left = screenX*2/3,
         defaultFile = "buttonDefault.png",
         overFile = "buttonOver.png",
-        label = "5 : 0 0 ",
+        label = "5:00",
         labelColor = { default={ 0, 0, 0, 0.8 }, over={ 0, 0, 0, 0.5 } },
         fontSize = 40,
         onEvent = handleFive
@@ -193,12 +234,13 @@ local buttonFive = widget.newButton( --FIVE MINUTES
 )
 local buttonThree = widget.newButton( --THREE MINUTES
     {
-        width = screenX,
+        width = screenX/3,
         height = screenY/10,
-        top = screenY*3/4 + screenY/10,
+        top = screenY*3/4 + screenY/5.5,
+		left = screenX/3+1,
         defaultFile = "buttonDefault.png",
         overFile = "buttonOver.png",
-        label = "3 : 0 0 ",
+        label = "3:00",
         labelColor = { default={ 0, 0, 0, 0.8 }, over={ 0, 0, 0, 0.5 } },
         fontSize = 40,
         onEvent = handleThree
@@ -206,12 +248,13 @@ local buttonThree = widget.newButton( --THREE MINUTES
 )
 local buttonOne = widget.newButton( --ONE MINUTE
     {
-        width = screenX,
+        width = screenX/3,
         height = screenY/10,
-        top = screenY*3/4 + 2*screenY/10,
+        top = screenY*3/4 + screenY/5.5,
+		left = 1,
         defaultFile = "buttonDefault.png",
         overFile = "buttonOver.png",
-        label = "1 : 0 0 ",
+        label = "1:00",
         labelColor = { default={ 0, 0, 0, 0.8 }, over={ 0, 0, 0, 0.5 } },
         fontSize = 40,
         onEvent = handleOne
@@ -250,7 +293,7 @@ local buttonLeft = widget.newButton( --SUBTRACT LEFT
         width = screenX/4,
         height = screenY/10,
         top = screenY/5,
-        left = 0 + screenX/4,
+        left = screenX/4,
         defaultFile = "leftDefault.png",
         overFile = "leftOver.png",
         label = "-",
@@ -296,5 +339,33 @@ local buttonRight = widget.newButton( --RESET SCORE
         overFile = "resetOver.png",
         fontSize = 40,
         onEvent = handleReset
+    }
+)
+local buttonOne = widget.newButton( --ADD TIME
+    {
+        width = screenX/5,
+        height = screenY/15,
+        top = screenY/2-screenY/30,
+		left = screenX*4/5-screenX/20,
+        defaultFile = "doubleDefault.png",
+        overFile = "buttonOver.png",
+        label = "+ :01",
+        labelColor = { default={ 0, 0, 0, 0.8 }, over={ 0, 0, 0, 0.5 } },
+        fontSize = 25,
+        onEvent = handleAdd
+    }
+)
+local buttonOne = widget.newButton( --SUBTRACT TIME
+    {
+        width = screenX/5,
+        height = screenY/15,
+        top = screenY/2-screenY/30,
+		left = screenX/20,
+        defaultFile = "doubleDefault.png",
+        overFile = "buttonOver.png",
+        label = "- :01",
+        labelColor = { default={ 0, 0, 0, 0.8 }, over={ 0, 0, 0, 0.5 } },
+        fontSize = 25,
+        onEvent = handleSub
     }
 )
